@@ -1,0 +1,50 @@
+[
+  {
+    "question": "Quem recebe o repasse do PDDE?",
+    "answer_span": "a unidade executora representativa da escola",
+    "source": "pdde_wiki.md",
+    "programa": "programa__pdde"
+  },
+  {
+    "question": "Qual o prazo de prestação de contas do PDDE?",
+    "answer_span": "A prestação de contas é anual",
+    "source": "pdde_faq.md",
+    "programa": "programa__pdde"
+  },
+  {
+    "question": "A escola recebe dinheiro no PNLD?",
+    "answer_span": "Não há repasse de dinheiro à escola",
+    "source": "pnld_wiki.md",
+    "programa": "programa__pnld"
+  },
+  {
+    "question": "Com que frequência o PNLD é atualizado?",
+    "answer_span": "ciclos plurianuais",
+    "source": "pnld_wiki.md",
+    "programa": "programa__pnld"
+  },
+  {
+    "question": "Como é calculado o repasse do PNAE?",
+    "answer_span": "número de matrículas do censo escolar",
+    "source": "pnae_wiki.md",
+    "programa": "programa__pnae"
+  },
+  {
+    "question": "No PNAE, qual o mínimo da agricultura familiar?",
+    "answer_span": "No mínimo trinta por cento",
+    "source": "pnae_faq.md",
+    "programa": "programa__pnae"
+  },
+  {
+    "question": "Como funciona o pagamento das bolsas no PET?",
+    "answer_span": "O pagamento das bolsas depende do cadastro atualizado",
+    "source": "pet_wiki.md",
+    "programa": "programa__pet"
+  },
+  {
+    "question": "Qual o prazo do relatório de atividades do PET?",
+    "answer_span": "O relatório anual de atividades deve ser entregue ao fim do exercício",
+    "source": "pet_faq.md",
+    "programa": "programa__pet"
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "programs": {
+    "programa__pet": {
+      "aliases": ["pet", "educacao tutorial", "programa de educacao tutorial"],
+      "files": ["pet_wiki.md", "pet_faq.md"]
+    },
+    "programa__pnae": {
+      "aliases": ["pnae", "alimentacao escolar"],
+      "files": ["pnae_wiki.md", "pnae_faq.md"]
+    },
+    "programa__pdde": {
+      "aliases": ["pdde", "dinheiro direto"],
+      "files": ["pdde_wiki.md", "pdde_faq.md"]
+    },
+    "programa__pnld": {
+      "aliases": ["pnld", "livro didatico"],
+      "files": ["pnld_wiki.md", "pnld_faq.md"]
+    }
+  },
+  "transversal_files": ["legislacao_geral.md"]
+}
