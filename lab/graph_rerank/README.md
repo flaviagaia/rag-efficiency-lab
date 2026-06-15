@@ -4,6 +4,9 @@
 
 Python 3.10+ · scikit-learn · 100% offline, sem API key · experimento da Série A (RAG Eficiente)
 
+> Os programas (Alfa, Beta, Gama, Delta) e o conteúdo são fictícios, criados só
+> para a demonstração. Nenhum dado real ou interno é usado.
+
 ---
 
 ## 🇧🇷 Português
@@ -24,7 +27,7 @@ ordem vetorial é preservada.
 
 ```
 1. Busca vetorial (TF-IDF)   -> top-k chunks por similaridade, varre TUDO
-2. find_nodes(pergunta)      -> identifica o programa citado (ex.: "PDDE")
+2. find_nodes(pergunta)      -> identifica o programa citado (ex.: "Beta")
 3. traverse(seeds)           -> arquivos do programa (aresta documentado_em)
 4. boost                     -> +3.0 nos chunks desses arquivos, reordena
 5. LLM                       -> recebe os chunks na ordem re-rankeada
@@ -35,19 +38,20 @@ complementa a similaridade semântica.
 
 ### Resultado real deste repositório
 
-Acervo de 18 chunks, 9 arquivos, 4 programas, com **referências cruzadas** (um
-documento do PNLD cita o PDDE, etc.) para simular a contaminação que confunde a
-busca puramente textual.
+Acervo de 18 chunks, 9 arquivos, 4 programas fictícios, com **referências
+cruzadas** (um documento do Gama cita o Beta, etc.) para simular a contaminação
+que confunde a busca puramente textual.
 
 | Métrica | Só busca vetorial | + grafo |
 | ------- | ----------------- | ------- |
-| MRR | 0.588 | **0.688** |
-| recall@3 | 0.625 | **1.000** |
+| MRR | 0.713 | **0.812** |
+| recall@1 | 0.500 | **0.625** |
+| recall@3 | 0.875 | **1.000** |
 | regressões (chunk certo que caiu) | — | **0 / 8** |
 
 O grafo levou **todos** os chunks certos para o top 3, sem nunca rebaixar uma
-resposta correta. Três perguntas melhoraram de posição (de 4º e 5º para 2º) e
-nenhuma piorou.
+resposta correta. O caso mais claro: uma pergunta cujo chunk certo estava em 5º
+lugar na busca vetorial subiu para 2º com o grafo.
 
 ### Por que re-ranking e não filtragem hierárquica?
 
@@ -60,8 +64,8 @@ nenhuma piorou.
 
 ### O detalhe que o grafo acerta e o texto não
 
-O documento do PNLD diz "diferente do **PDDE**...". Uma busca textual pode trazer
-esse chunk do PNLD para uma pergunta sobre o PDDE. O grafo usa o **arquivo** de
+O documento do Gama diz "diferente do **Beta**...". Uma busca textual pode trazer
+esse chunk do Gama para uma pergunta sobre o Beta. O grafo usa o **arquivo** de
 origem (a aresta `documentado_em`), não a menção no texto, então não se confunde.
 O teste `test_referencia_cruzada_nao_engana_o_grafo` garante isso.
 
@@ -101,15 +105,19 @@ The key property is **monotonicity**: graph re-ranking **never hurts, only helps
 When the program named in the question is identified, it lifts the right chunks;
 when no program is found, it is a no-op and the vector ordering is preserved.
 
+> The programs (Alfa, Beta, Gama, Delta) and their content are fictional, made only
+> for this demo. No real or internal data is used.
+
 ### Real result
 
-18 chunks, 9 files, 4 programs, with **cross-references** (a PNLD document mentions
-PDDE, etc.) to simulate the contamination that fools purely textual search.
+18 chunks, 9 files, 4 fictional programs, with **cross-references** (a Gama doc
+mentions Beta, etc.) to simulate the contamination that fools purely textual search.
 
 | Metric | Vector only | + graph |
 | ------ | ----------- | ------- |
-| MRR | 0.588 | **0.688** |
-| recall@3 | 0.625 | **1.000** |
+| MRR | 0.713 | **0.812** |
+| recall@1 | 0.500 | **0.625** |
+| recall@3 | 0.875 | **1.000** |
 | regressions (correct chunk demoted) | — | **0 / 8** |
 
 The graph brought every correct chunk into the top 3 without ever demoting a
@@ -123,8 +131,8 @@ holds). The graph improves but is never a single point of failure.
 
 ### The detail the graph gets right
 
-A PNLD doc says "unlike PDDE...". Textual search may surface that PNLD chunk for a
-PDDE question. The graph uses the source **file** (the `documentado_em` edge), not
+A Gama doc says "unlike Beta...". Textual search may surface that Gama chunk for a
+Beta question. The graph uses the source **file** (the `documentado_em` edge), not
 the textual mention, so it is not fooled.
 
 ### Running
