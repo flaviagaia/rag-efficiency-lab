@@ -1,50 +1,50 @@
 [
   {
-    "question": "Quem recebe o repasse do PDDE?",
+    "question": "Quem recebe o repasse do Beta?",
     "answer_span": "a unidade executora representativa da escola",
-    "source": "pdde_wiki.md",
-    "programa": "programa__pdde"
+    "source": "beta_wiki.md",
+    "programa": "programa__beta"
   },
   {
-    "question": "Qual o prazo de prestação de contas do PDDE?",
+    "question": "Qual o prazo de prestação de contas do Beta?",
     "answer_span": "A prestação de contas é anual",
-    "source": "pdde_faq.md",
-    "programa": "programa__pdde"
+    "source": "beta_faq.md",
+    "programa": "programa__beta"
   },
   {
-    "question": "A escola recebe dinheiro no PNLD?",
+    "question": "A escola recebe dinheiro no Gama?",
     "answer_span": "Não há repasse de dinheiro à escola",
-    "source": "pnld_wiki.md",
-    "programa": "programa__pnld"
+    "source": "gama_wiki.md",
+    "programa": "programa__gama"
   },
   {
-    "question": "Com que frequência o PNLD é atualizado?",
+    "question": "Com que frequência o Gama é atualizado?",
     "answer_span": "ciclos plurianuais",
-    "source": "pnld_wiki.md",
-    "programa": "programa__pnld"
+    "source": "gama_wiki.md",
+    "programa": "programa__gama"
   },
   {
-    "question": "Como é calculado o repasse do PNAE?",
+    "question": "Como é calculado o repasse do Alfa?",
     "answer_span": "número de matrículas do censo escolar",
-    "source": "pnae_wiki.md",
-    "programa": "programa__pnae"
+    "source": "alfa_wiki.md",
+    "programa": "programa__alfa"
   },
   {
-    "question": "No PNAE, qual o mínimo da agricultura familiar?",
+    "question": "No Alfa, qual o mínimo da agricultura familiar?",
     "answer_span": "No mínimo trinta por cento",
-    "source": "pnae_faq.md",
-    "programa": "programa__pnae"
+    "source": "alfa_faq.md",
+    "programa": "programa__alfa"
   },
   {
-    "question": "Como funciona o pagamento das bolsas no PET?",
+    "question": "Como funciona o pagamento das bolsas no Delta?",
     "answer_span": "O pagamento das bolsas depende do cadastro atualizado",
-    "source": "pet_wiki.md",
-    "programa": "programa__pet"
+    "source": "delta_wiki.md",
+    "programa": "programa__delta"
   },
   {
-    "question": "Qual o prazo do relatório de atividades do PET?",
+    "question": "Qual o prazo do relatório de atividades do Delta?",
     "answer_span": "O relatório anual de atividades deve ser entregue ao fim do exercício",
-    "source": "pet_faq.md",
-    "programa": "programa__pet"
+    "source": "delta_faq.md",
+    "programa": "programa__delta"
   }
 ]
