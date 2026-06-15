@@ -57,9 +57,9 @@ def test_no_op_sem_seed():
 
 def test_boost_so_no_programa_seed():
     """O boost recai apenas em chunks de arquivos do programa identificado."""
-    q = "Quem recebe o repasse do PDDE?"
+    q = "Quem recebe o repasse do Beta?"
     seeds = graph.find_nodes(q)
-    assert seeds == ["programa__pdde"]
+    assert seeds == ["programa__beta"]
     seed_files = graph.traverse(seeds)
     vec = {c.chunk_id: s for c, s in retriever.search(q, TOP_K)}
     for chunk, score in graph.boost(retriever.search(q, TOP_K), q):
@@ -68,8 +68,8 @@ def test_boost_so_no_programa_seed():
 
 
 def test_referencia_cruzada_nao_engana_o_grafo():
-    """O PNLD cita 'PDDE' no texto, mas o grafo usa o ARQUIVO, não a menção:
-    o chunk do PNLD não é tratado como sendo do PDDE."""
-    seed_files = graph.traverse(["programa__pdde"])
-    assert "pnld_faq.md" not in seed_files
-    assert "pdde_wiki.md" in seed_files
+    """O Gama cita 'Beta' no texto, mas o grafo usa o ARQUIVO, não a menção:
+    o chunk do Gama não é tratado como sendo do Beta."""
+    seed_files = graph.traverse(["programa__beta"])
+    assert "gama_faq.md" not in seed_files
+    assert "beta_wiki.md" in seed_files
