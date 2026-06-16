@@ -154,4 +154,15 @@ pytest tests/ -v          # 5 tests
 
 ---
 
+## Referências científicas (crédito aos autores)
+
+- Lewis et al. (2020). Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. NeurIPS.
+- Cormack, Clarke & Buettcher (2009). Reciprocal Rank Fusion. SIGIR.
+- Edge et al. (2024). From Local to Global: A Graph RAG Approach. Microsoft Research.
+- Nogueira & Cho (2019). Passage Re-ranking with BERT.
+
+Este repositório é uma reimplementação didática e offline dessas ideias.
+
+---
+
 Part of my LinkedIn series on RAG efficiency → [Flávia Gaia](https://www.linkedin.com/in/flavia-gaia/)
