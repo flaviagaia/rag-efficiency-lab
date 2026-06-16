@@ -1,0 +1,21 @@
+{
+  "programs": {
+    "entidade__marte": {
+      "aliases": ["marte"],
+      "files": ["marte.md"]
+    },
+    "entidade__jupiter": {
+      "aliases": ["jupiter"],
+      "files": ["jupiter.md"]
+    },
+    "entidade__venus": {
+      "aliases": ["venus"],
+      "files": ["venus.md"]
+    },
+    "entidade__saturno": {
+      "aliases": ["saturno"],
+      "files": ["saturno.md"]
+    }
+  },
+  "transversal_files": []
+}
