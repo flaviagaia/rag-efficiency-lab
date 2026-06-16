@@ -166,4 +166,13 @@ pytest tests/ -v          # 6 tests
 
 ---
 
+## Referências científicas (crédito aos autores)
+
+- Lewis et al. (2020). Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. NeurIPS.
+- Packer et al. (2023). MemGPT: Towards LLMs as Operating Systems. arXiv:2310.08560.
+
+Este repositório é uma reimplementação didática e offline dessas ideias.
+
+---
+
 Part of my LinkedIn series on RAG efficiency → [Flávia Gaia](https://www.linkedin.com/in/flavia-gaia/)
