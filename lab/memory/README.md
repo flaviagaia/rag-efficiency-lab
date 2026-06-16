@@ -2,122 +2,159 @@
 
 [🇧🇷 Português](#-português) · [🇺🇸 English](#-english)
 
-Python 3.10+ · scikit-learn · 100% offline, sem API key · experimento da Série A (RAG Eficiente)
+Python 3.10+ · scikit-learn · 100% offline, sem API key · MIT License
 
-> Demonstração sobre **dados públicos do Sistema Solar** (período orbital, diâmetro,
-> posição a partir do Sol). É só um veículo neutro para mostrar as técnicas.
+> **Em uma frase:** num chat com RAG, guardar todo o histórico resolve o "e o
+> diâmetro **dele**?" mas envenena a busca depois que o assunto muda. Memória
+> adaptativa rastreia a entidade ativa, resolve o pronome para ela e descarta o
+> assunto anterior. No experimento: **100% de acerto com 1/3 do custo de contexto.**
+>
+> Demonstração sobre dados públicos do Sistema Solar. É só um veículo neutro.
 
 ---
 
 ## 🇧🇷 Português
 
-### A tese
+### O problema, em concreto
 
-A memória de um RAG conversacional não é guardar todo o histórico. Despejar a
-conversa inteira no contexto resolve a anáfora ("e o diâmetro **dele**?"), mas tem
-dois custos escondidos: o ruído dos turnos antigos puxa a busca para a entidade
-errada depois de uma troca de assunto, e o contexto cresce a cada pergunta.
-Memória adaptativa faz melhor com menos: identifica a **entidade ativa**, resolve
-o pronome para ela, e **descarta** os turnos do assunto anterior.
+Conversa real é cheia de anáfora (pronomes que se referem a algo dito antes):
 
-### A conversa de teste
+```
+T1  Qual o período orbital de Marte?        -> precisa do nome (tem)
+T2  E qual o diâmetro dele?                  -> "dele" = ?
+T4  E o período orbital de Júpiter?          -> troca de assunto
+T5  E qual o diâmetro dele?                  -> "dele" = Júpiter, NÃO Marte
+```
 
-Cinco turnos sobre planetas, com anáfora e uma troca de assunto no meio (Marte →
-Júpiter). Os fatos são **paralelos** (todo planeta tem período orbital, diâmetro e
-posição), então a pergunta de acompanhamento só resolve com a entidade certa. O
-turno decisivo é o último: "e qual o diâmetro **dele**?" logo após mudar para
-Júpiter. O "dele" precisa virar Júpiter, não Marte.
+Sem memória, T2 e T5 são insolúveis: o sistema não sabe quem é "dele". A reação
+comum é jogar todo o histórico no contexto. Isso resolve a anáfora, mas cria dois
+problemas: (1) depois da troca de assunto em T4, o histórico ainda está cheio de
+Marte, e a busca de T5 é puxada para Marte; (2) o contexto cresce a cada turno,
+e você paga por tokens que só atrapalham.
 
-### Três estratégias, resultado real
+### Como funciona (o técnico)
 
-| Estratégia | Acurácia | Custo médio (palavras/consulta) |
-| ---------- | -------- | ------------------------------- |
+Três estratégias de construir a *consulta efetiva* que vai ao retriever:
+
+| Estratégia | Consulta efetiva | Custo |
+| ---------- | ---------------- | ----- |
+| `none` | só o texto do turno atual | O(1) |
+| `full` | concatenação de todos os turnos | O(n) por turno, O(n²) na conversa |
+| `adaptive` | turno atual + entidade ativa resolvida | O(1) |
+
+O núcleo é uma `SessionMemory` com quatro mecanismos:
+
+```
+observe(turno):
+    p := programa nomeado no texto (casamento por alias)   # detecção de entidade
+    se p e p != ativo:  ativo := p;  janela := []           # topic shift -> poda
+    janela.append(turno)
+
+resolve(texto):                                             # resolução de anáfora
+    se texto tem pronome ("dele","ele","esse") e ativo:
+        retorna texto + nome(ativo)
+    retorna texto
+
+window_weights():                                           # decay temporal
+    peso do turno i = 0.8 ^ (distância até o turno mais recente)
+```
+
+Pontos técnicos que importam:
+
+- **Detecção de entidade** por alias (aqui, nomes de planetas); em produção,
+  embeddings ou NER.
+- **Topic shift** = ver uma entidade nova. A janela do assunto anterior é
+  **descartada**, não apenas despriorizada. É isso que evita o ruído de T5.
+- **Decay** `0.8^k`: turnos antigos perdem peso exponencialmente, proxy do
+  "esfriar" do contexto. Mantém a entidade recente como a saliente.
+- **Falha segura:** sem entidade nomeada e sem entidade ativa, a pergunta é
+  marcada como ambígua em vez de chutar. Não inventa resposta.
+
+### Resultado real (mesma conversa, três estratégias)
+
+| Estratégia | Acurácia (follow-up) | Custo médio (palavras/consulta) |
+| ---------- | -------------------- | ------------------------------- |
 | Sem memória | 40% | 6.2 |
 | Histórico cheio | 20% | **18.8** |
 | **Memória adaptativa** | **100%** | 6.8 |
 
-Leitura:
+O histórico cheio é o pior dos dois mundos: **3x o custo** e acurácia **menor** que
+não ter memória, porque o assunto antigo domina a busca depois da troca. A
+adaptativa acerta tudo praticamente de graça.
 
-- **Sem memória** só responde os turnos que nomeiam o planeta. Os follow-ups com
-  "ele/dele" ficam ambíguos: o sistema não sabe a quem você se refere.
-- **Histórico cheio** paga **3x mais contexto** e acerta menos que não ter memória:
-  o ruído do assunto anterior derruba o follow-up e, no turno pós-troca, o Marte
-  antigo domina e a resposta sai errada.
-- **Memória adaptativa** acerta **tudo** com basicamente o mesmo custo de não ter
-  memória, porque resolve o pronome para a entidade ativa e poda o assunto antigo.
+### Como explicar em 30 segundos
 
-### O que a memória faz aqui
-
-- **Rastreamento de entidade:** guarda a entidade ativa da conversa.
-- **Resolução de anáfora:** "ele/dele/esse" vira o nome da entidade ativa.
-- **Janela adaptativa por topic shift:** ao citar uma entidade nova, descarta os
-  turnos da anterior (eles viraram ruído).
-- **Decay:** turnos mais antigos perdem peso (0.8 por passo), proxy do "esfriar"
-  do contexto com o tempo.
+Memória de chat não é um diário que cresce para sempre. É um post-it: você anota de
+quem está falando agora, troca o post-it quando o assunto muda, e joga o antigo
+fora. Guardar tudo não é lembrar melhor; é se confundir mais caro.
 
 ### Execução
 
 ```
 pip install -r requirements.txt
 python demo.py            # a conversa sob as 3 estratégias, com números reais
-pytest tests/ -v          # 6 testes
+pytest tests/ -v          # 6 testes (resolução, topic shift, decay, custo)
 ```
 
 ### Estrutura
 
 ```
-data/planetas/     # 4 planetas com fatos paralelos (dados públicos)
-data/graph.json    # aliases das entidades (para o rastreamento)
-memory.py          # SessionMemory: entidade ativa, anáfora, topic shift, decay
-retriever.py       # TF-IDF (com stopwords PT) — o "Google" do pipeline
-demo.py            # roda as 3 estratégias e compara
-tests/             # um invariante por lição
+data/planetas/   # 4 planetas com fatos paralelos (dados públicos)
+data/graph.json  # aliases das entidades (detecção de entidade)
+memory.py        # SessionMemory: entidade ativa, anáfora, topic shift, decay
+retriever.py     # TF-IDF com stopwords PT (o "Google" do pipeline)
+demo.py          # roda e compara as 3 estratégias
+tests/           # um invariante por lição
 ```
 
 ### Limitações honestas
 
-A resolução de anáfora aqui é por regra (lista de pronomes) e sempre aponta para a
-última entidade ativa. Em produção, perguntas ambíguas, múltiplas entidades no
-mesmo turno e correções ("não, eu disse o outro") exigem desambiguação mais fina
-(recência, tema, confiança). O ponto deste experimento é isolar **por que** janela
-adaptativa vence histórico cheio, não cobrir todos os casos.
+Resolução de anáfora por regra, sempre apontando para a última entidade ativa.
+Produção precisa de desambiguação mais fina (recência + tema + confiança) para
+turnos ambíguos, múltiplas entidades e correções ("não, o outro"). O retriever é
+lexical (TF-IDF); com embeddings o efeito é o mesmo, muda o recuperador. O objetivo
+é isolar **por que** janela adaptativa vence histórico cheio.
 
 ---
 
 ## 🇺🇸 English
 
-### The thesis
+**In one line:** in a RAG chat, keeping the whole history resolves "and **its**
+diameter?" but poisons retrieval after the topic changes. Adaptive memory tracks the
+active entity, resolves the pronoun to it, and drops the old topic. Result: **100%
+accuracy at 1/3 of the context cost.** Demo over public Solar System data.
 
-Conversational RAG memory is not about storing the whole history. Dumping the full
-conversation into context resolves anaphora ("and **its** diameter?") but has two
-hidden costs: noise from old turns drags retrieval toward the wrong entity after a
-topic switch, and context grows every turn. Adaptive memory does better with less:
-it tracks the **active entity**, resolves the pronoun to it, and **drops** the
-previous topic's turns.
+### The problem
+
+Conversations are full of anaphora. Without memory, follow-ups like "and its
+diameter?" are unsolvable. The common fix, dumping all history into context, both
+(1) lets the stale topic dominate retrieval after a topic switch and (2) grows cost
+every turn.
+
+### How it works (technical)
+
+Three ways to build the *effective query*: `none` (current turn only), `full`
+(concatenate all turns, O(n²) over the conversation), `adaptive` (current turn +
+resolved active entity, O(1)). `SessionMemory` does entity detection (alias match),
+topic-shift detection (a new entity **drops** the previous window), rule-based
+anaphora resolution, and exponential `0.8^k` decay. Fail-safe: with no entity, the
+question is flagged ambiguous instead of guessing.
 
 ### Real result
 
-A 5-turn conversation about planets, with anaphora and a mid-conversation topic
-switch (Mars → Jupiter). Facts are **parallel** (every planet has an orbital
-period, diameter and position), so a follow-up only resolves with the right entity.
-The decisive turn is the last: "and its diameter?" right after switching to Jupiter.
-"Its" must become Jupiter, not Mars.
-
-| Strategy | Accuracy | Avg cost (words/query) |
-| -------- | -------- | ---------------------- |
+| Strategy | Follow-up accuracy | Avg cost (words/query) |
+| -------- | ------------------ | ---------------------- |
 | No memory | 40% | 6.2 |
 | Full history | 20% | **18.8** |
-| **Adaptive memory** | **100%** | 6.8 |
+| **Adaptive** | **100%** | 6.8 |
 
-No memory only answers turns that name the planet. Full history pays **3x the
-context** and is even less accurate than no memory: stale-topic noise breaks the
-follow-up, and on the post-switch turn old Mars dominates. Adaptive memory gets
-everything right at essentially the cost of having no memory.
+Full history is the worst of both worlds: 3x the cost, lower accuracy than no
+memory, because the old topic dominates retrieval after the switch.
 
-### What memory does here
+### Explain it in 30 seconds
 
-Entity tracking, anaphora resolution, an **adaptive window** that drops the old
-topic on a switch, and **decay** (older turns weighted 0.8 per step).
+Chat memory isn't a diary that grows forever. It's a sticky note: write down who
+you're talking about now, swap it when the subject changes, throw the old one away.
 
 ### Running
 
@@ -126,13 +163,6 @@ pip install -r requirements.txt
 python demo.py
 pytest tests/ -v          # 6 tests
 ```
-
-### Honest limitations
-
-Anaphora resolution is rule-based and always points to the last active entity. Real
-systems need finer disambiguation (recency, topic, confidence) for ambiguous turns,
-multiple entities, and corrections. The goal here is to isolate **why** an adaptive
-window beats full history, not to cover every case.
 
 ---
 
